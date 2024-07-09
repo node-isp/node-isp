@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7](https://github.com/node-isp/node-isp/compare/v1.0.6...v1.0.7) (2024-06-26)
+
+
+### Bug Fixes
+
+* service file name ([ecea046](https://github.com/node-isp/node-isp/commit/ecea0466078c26a7f612c57e9a6ba23b64c7bd49))
+
 ## [1.0.6](https://github.com/node-isp/node-isp/compare/v1.0.5...v1.0.6) (2024-06-26)
 
 
