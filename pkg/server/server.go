@@ -23,15 +23,17 @@ import (
 	"github.com/docker/go-connections/nat"
 
 	"github.com/node-isp/node-isp/pkg/config"
+	"github.com/node-isp/node-isp/pkg/database"
 	"github.com/node-isp/node-isp/pkg/licence"
 	"github.com/node-isp/node-isp/pkg/logger"
-	"github.com/node-isp/node-isp/pkg/server/service"
+	"github.com/node-isp/node-isp/pkg/server/realtime"
 	"github.com/node-isp/node-isp/pkg/server/webserver"
+	"github.com/node-isp/node-isp/pkg/service"
 	"github.com/node-isp/node-isp/pkg/updater"
 )
 
 var bakedAppRepo = "ghcr.io/node-isp/node-isp"
-var bakedAppVersion = "v0.11.8"
+var bakedAppVersion = "v0.11.12"
 
 type Server struct {
 	Config *config.Config
@@ -310,7 +312,7 @@ func (s *Server) Run() {
 		"8080/tcp": {},
 	}
 
-	appServer.Entrypoint = []string{"php", "artisan", "octane:start", "--host=0.0.0.0", "--port=8080"}
+	// appServer.Entrypoint = []string{"php", "artisan", "octane:start", "--host=0.0.0.0", "--port=8080"}
 
 	if err := mgr.EnsureService(ctx, appServer); err != nil {
 		s.Log.WithError(err).Fatal("Failed to start app server")
@@ -350,21 +352,41 @@ func (s *Server) Run() {
 		}
 	}()
 
+	db, err := database.NewDatabase("127.0.0.1", fmt.Sprintf("%d", postgresPort), "postgres", s.Config.Database.Password, s.Config.Database.Name)
+	if err != nil {
+		s.Log.WithError(err).Fatal("Failed to connect to database")
+	}
+
 	// Start the stats reporter
 	if licenceClient != nil {
-		if err := licenceClient.StartStatsReporter(
-			"127.0.0.1",
-			fmt.Sprintf("%d", postgresPort),
-			"postgres",
-			s.Config.Database.Password,
-			s.Config.Database.Name,
-		); err != nil {
+		if err := licenceClient.StartStatsReporter(db); err != nil {
 			s.Log.WithError(err).Fatal("Failed to start stats reporter")
 		}
 	}
 
 	// Start the HTTP and HTTPS proxy
-	mux := s.setupProxy()
+	mux := http.NewServeMux()
+
+	rt := realtime.RealTime{
+		DB:         db,
+		BackendUrl: fmt.Sprintf("%s/api/centrifugo", proxyHost),
+		Log:        log.WithField("component", "realtime"),
+	}
+
+	if err := rt.Run(); err != nil {
+		s.Log.WithError(err).Fatal("Failed to setup realtime server")
+	}
+
+	// Realtime server
+	mux.HandleFunc("/_internal/realtime", rt.Handler)
+
+	// Proxy to app container
+	mux.Handle("/", s.setupProxy())
+
+	if err := rt.Run(); err != nil {
+		s.Log.WithError(err).Fatal("Failed to setup realtime server")
+	}
+
 	ws := webserver.New(
 		mux,
 		s.Config.Storage.Data,
@@ -449,9 +471,8 @@ func (s *Server) loadState() error {
 	return json.Unmarshal(f, s.mgr)
 }
 
-func (s *Server) setupProxy() *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.Handle("/", &httputil.ReverseProxy{Director: func(req *http.Request) {
+func (s *Server) setupProxy() *httputil.ReverseProxy {
+	return &httputil.ReverseProxy{Director: func(req *http.Request) {
 		targetQuery := proxyHost.RawQuery
 		req.URL.Scheme = proxyHost.Scheme
 		req.URL.Host = proxyHost.Host
@@ -461,9 +482,7 @@ func (s *Server) setupProxy() *http.ServeMux {
 		} else {
 			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
 		}
-	}})
-
-	return mux
+	}}
 }
 
 func mkdir(path string) {
@@ -521,6 +540,7 @@ func joinURLPath(a, b *url.URL) (path, rawpath string) {
 	}
 	return a.Path + b.Path, apath + bpath
 }
+
 func singleJoiningSlash(a, b string) string {
 	aslash := strings.HasSuffix(a, "/")
 	bslash := strings.HasPrefix(b, "/")

@@ -10,11 +10,12 @@ import (
 	"time"
 
 	"github.com/apex/log"
-	"github.com/jmoiron/sqlx"
+
+	"github.com/node-isp/node-isp/pkg/database"
 )
 
 type Licence struct {
-	db       *sqlx.DB // Add a field to store the database connection
+	db       *database.Database // Add a field to store the database connection
 	log      *log.Entry
 	fileName string
 

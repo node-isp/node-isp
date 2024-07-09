@@ -20,11 +20,32 @@ builds:
     ldflags:
       - -s -w -X github.com/node-isp/node-isp/pkg/version.Version={{.Version}} -X github.com/node-isp/node-isp/pkg/version.Commit={{.Commit}} -X github.com/node-isp/node-isp/pkg/version.BuildDate={{ .CommitDate }}
 
+  - id: radius
+    main: .
+    binary: radius
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w -X github.com/node-isp/node-isp/pkg/version.Version={{.Version}} -X github.com/node-isp/node-isp/pkg/version.Commit={{.Commit}} -X github.com/node-isp/node-isp/pkg/version.BuildDate={{ .CommitDate }}
 archives:
   - id: nodeisp
     name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
     builds:
       - nodeisp
+    format: binary
+    files: [ ]
+
+  - id: radius
+    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
+    builds:
+      - radius
     format: binary
     files: [ ]
 

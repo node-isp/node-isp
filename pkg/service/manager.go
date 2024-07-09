@@ -170,12 +170,16 @@ func (m *Manager) ensureRunning(ctx context.Context, name string) error {
 		}
 
 		reader, err := m.d.ImagePull(ctx, svc.Image, pullOptions)
+		ignorePullErrors := false
 		if err != nil {
-			return err
+			svc.log.WithError(err).Error("failed to pull image")
+			ignorePullErrors = true
 		}
-		defer reader.Close()
 
-		_, _ = io.Copy(os.Stdout, reader)
+		if !ignorePullErrors {
+			_, _ = io.Copy(os.Stdout, reader)
+			_ = reader.Close()
+		}
 		svc.log.Info("creating container")
 
 		resp, err := m.d.ContainerCreate(ctx, &container.Config{

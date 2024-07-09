@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+
+	"github.com/node-isp/node-isp/pkg/database"
 )
 
 type stats struct {
@@ -21,19 +22,9 @@ type stats struct {
 	ServicesByStatus map[string]int `json:"services_by_status"`
 }
 
-func (l *Licence) StartStatsReporter(dbHost,
-	dbPort,
-	dbUser,
-	dbPassword,
-	dbDatabase string) error {
+func (l *Licence) StartStatsReporter(db *database.Database) error {
 
-	// Connect to the database
-	authString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbDatabase)
-
-	if dbPassword != "" {
-		authString = fmt.Sprintf("%s password=%s", authString, dbPassword)
-	}
-
+	l.db = db
 	// Start a goroutine to process stats every 12 hours
 	go func() {
 		ticker := time.NewTicker(1 * time.Hour)
@@ -42,14 +33,6 @@ func (l *Licence) StartStatsReporter(dbHost,
 		for range ticker.C {
 			// process stats
 			l.log.Info("sending usage statistics to the licence server")
-
-			// Connect to the database
-			var err error
-			l.db, err = sqlx.Connect("postgres", authString)
-			if err != nil {
-				l.log.WithError(err).Error("failed to connect to the database")
-				continue
-			}
 
 			// process stats
 			s, err := l.stats()

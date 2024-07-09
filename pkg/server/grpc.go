@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	pb "github.com/node-isp/node-isp/pkg/grpc"
-	"github.com/node-isp/node-isp/pkg/server/service"
+	"github.com/node-isp/node-isp/pkg/service"
 	"github.com/node-isp/node-isp/pkg/updater"
 )
 

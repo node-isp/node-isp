@@ -224,7 +224,7 @@ func Run() error {
 	if _, err := os.Stat("/etc/systemd/system"); err == nil {
 		// set up the service
 		confirmPrompt = promptui.Prompt{
-			Label:     fmt.Sprint("Setup the system service and start Node ISP? "),
+			Label:     fmt.Sprint("Run the system service and start Node ISP? "),
 			IsConfirm: true,
 		}
 

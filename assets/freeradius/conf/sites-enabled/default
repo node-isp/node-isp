@@ -1,0 +1,142 @@
+server default {
+	namespace = radius
+
+	radius {
+		Access-Request { }
+	}
+
+	dictionary { }
+
+	listen {
+		type = Access-Request
+		type = Status-Server
+
+		transport = udp
+		limit {
+			max_clients = 256
+			max_connections = 256
+			idle_timeout = 60.0
+			nak_lifetime = 30.0
+			cleanup_delay = 5.0
+		}
+
+		udp {
+			ipaddr = *
+			port = 1812
+			dynamic_clients = true
+			networks {
+				allow = 0.0.0.0/0
+			}
+		}
+	}
+
+	listen tcp_auth {
+		type = Access-Request
+		type = Status-Server
+
+		transport = tcp
+
+		tcp {
+			ipaddr = *
+            port = 1812
+			dynamic_clients = true
+			networks {
+				allow = 0.0.0.0/0
+			}
+		}
+	}
+
+	listen udp_acct {
+		type = Accounting-Request
+
+		transport = udp
+
+		udp {
+			ipaddr = *
+			port = 1813
+			dynamic_clients = true
+			networks {
+				allow = 0.0.0.0/0
+			}
+		}
+	}
+
+
+    new client {
+        map json "%rest($ENV{FREERADIUS_API_URL}/api/v1/radius/client/%{Net.Src.IP})" {
+            &control.FreeRADIUS-Client-IP-Address := '$.ip'
+            &control.FreeRADIUS-Client-Shortname := '$.id'
+            &control.FreeRADIUS-Client-Secret := '$.secret'
+        }
+
+        ok
+    }
+
+    add client {
+        ok
+    }
+
+    deny client {
+        ok
+    }
+
+    recv Access-Request {
+        filter_username
+        expiration
+        rest
+        pap
+    }
+
+    recv Status-Server {
+        ok
+    }
+
+    authenticate pap {
+        pap
+    }
+
+    send Access-Accept {
+        insert_acct_class
+    }
+
+    send Access-Reject {
+        attr_filter.access_reject
+        delay_reject
+    }
+
+
+    recv Accounting-Request {
+        acct_counters64
+        acct_unique
+        files_accounting
+    }
+
+    accounting Start {
+
+    }
+
+    accounting Stop {
+
+    }
+
+    accounting Interim-Update {
+
+    }
+
+    accounting Accounting-On {
+
+    }
+
+    accounting Accounting-Off {
+
+    }
+
+    accounting Failed {
+
+    }
+
+    send Accounting-Response {
+        detail
+        attr_filter.accounting_response
+    }
+}

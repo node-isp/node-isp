@@ -10,7 +10,7 @@ import (
 
 var SetupCommand = &cli.Command{
 	Name:  "setup",
-	Usage: "Setup NodeISP for the first time",
+	Usage: "Run NodeISP for the first time",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		return setup.Run()
 	},

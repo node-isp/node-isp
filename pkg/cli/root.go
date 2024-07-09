@@ -17,6 +17,8 @@ var RootCommand = &cli.Command{
 	Commands: append([]*cli.Command{
 		SetupCommand,
 		ServerCommand,
+		RealtimeServerCommand,
+		RadiusCommand,
 	}, ClientCommands...),
 }
 
