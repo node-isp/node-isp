@@ -1,4 +1,4 @@
-name: Build NodeISP
+name: Build NodeISP Radius
 
 on:
   workflow_dispatch:
