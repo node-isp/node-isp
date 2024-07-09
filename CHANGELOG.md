@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/node-isp/node-isp/compare/v1.1.0...v1.1.1) (2024-07-09)
+
+
+### Bug Fixes
+
+* deploy scripts ([70e9fea](https://github.com/node-isp/node-isp/commit/70e9fea745c8ebe416ca0e4977c069fe601c3bca))
+* v0.12.3 ([a33c664](https://github.com/node-isp/node-isp/commit/a33c664e514b66cc0e434b0c1efb8c15a78e4fe9))
+
 ## [1.1.0](https://github.com/node-isp/node-isp/compare/v1.0.7...v1.1.0) (2024-07-09)
 
 
