@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/node-isp/node-isp/compare/v1.1.2...v1.1.3) (2024-07-09)
+
+
+### Bug Fixes
+
+* freeradus tags and go build ([d7cb846](https://github.com/node-isp/node-isp/commit/d7cb84639a21faecb512239e2834d7116fa56495))
+
 ## [1.1.2](https://github.com/node-isp/node-isp/compare/v1.1.1...v1.1.2) (2024-07-09)
 
 
