@@ -82,13 +82,17 @@ validate_arch(){
 }
 
 install_docker(){
-# Install Docker
-info "Installing Docker"
-  if ! command -v docker &> /dev/null; then
-    download /tmp/docker-install.sh https://get.docker.com
-    sh /tmp/docker-install.sh
-    rm /tmp/docker-install.sh
+  # Install Docker, if not already installed
+
+  if [ -x "$(command -v docker)" ]; then
+    info "Docker is already installed, skipping"
+    return
   fi
+
+  info "Installing Docker"
+  download /tmp/docker-install.sh https://get.docker.com
+  sh /tmp/docker-install.sh
+  rm /tmp/docker-install.sh
 }
 
 verify_downloader() {
