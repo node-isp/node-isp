@@ -2,15 +2,12 @@ package setup
 
 import (
 	"crypto/rand"
-	_ "embed"
 	"encoding/base64"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/apex/log"
 	"github.com/manifoldco/promptui"
 	"gopkg.in/yaml.v3"
 
@@ -19,6 +16,15 @@ import (
 )
 
 func Run() error {
+
+	// If a configuration file already exists, we should not overwrite it
+	if _, err := os.Stat(config.File); err == nil {
+		fmt.Println("🚀 NodeISP configuration already exists 🚀")
+		fmt.Println("Configuration file: " + config.File)
+		fmt.Println("If you want to reconfigure NodeISP, please remove the configuration file and run this command again.")
+		return nil
+
+	}
 
 	fmt.Println("🚀 Setting up NodeISP configuration 🚀")
 
@@ -130,8 +136,8 @@ func Run() error {
 
 	logDir, _ := logDirPrompt.Run()
 
-	os.MkdirAll(storageDir, 0755)
-	os.MkdirAll(logDir, 0755)
+	_ = os.MkdirAll(storageDir, 0755)
+	_ = os.MkdirAll(logDir, 0755)
 
 	// Generate the server configuration, and show the user the configuration
 	// before saving it to disk
@@ -220,66 +226,7 @@ func Run() error {
 		fmt.Println("Configuration saved to " + config.File)
 	}
 
-	// If this is a systemd-based system, ask the user if they want to set up the service
-	if _, err := os.Stat("/etc/systemd/system"); err == nil {
-		// set up the service
-		confirmPrompt = promptui.Prompt{
-			Label:     fmt.Sprint("Run the system service and start Node ISP? "),
-			IsConfirm: true,
-		}
-
-		result, _ = confirmPrompt.Run()
-
-		if strings.ToLower(result) == "y" {
-			setupService()
-
-			fmt.Println("NodeISP setup complete 🚀🚀🚀")
-			fmt.Println("NodeISP is now running as a service. You can access the admin interface at https://" + lic.Domain + "/admin")
-			fmt.Printf("Your App Key is: '%s'. Store this in a safe place, if you lose it, your data will be gone forever \r\n", key)
-
-			return nil
-		}
-	}
-
 	fmt.Println("NodeISP setup complete 🚀🚀🚀")
-	fmt.Println("NodeISP is not running as a service. You can start it by running `nodeispd`")
 
 	return nil
-}
-
-//go:embed nodeisp.service
-var nodeispdService []byte
-
-func setupService() {
-	// Write the service file
-	err := os.WriteFile("/etc/systemd/system/nodeisp.service", nodeispdService, 0644)
-	if err != nil {
-		log.Fatalf("Failed to write service file: %s", err)
-	}
-
-	fmt.Println("Service file written to /etc/systemd/system/nodeisp.service")
-
-	// Reload systemd
-	err = exec.Command("systemctl", "daemon-reload").Run()
-	if err != nil {
-		log.Fatalf("Failed to reload systemd: %s", err)
-	}
-
-	fmt.Println("Systemd reloaded")
-
-	// Enable the service
-	err = exec.Command("systemctl", "enable", "nodeisp").Run()
-	if err != nil {
-		log.Fatalf("Failed to enable service: %s", err)
-	}
-
-	fmt.Println("Service enabled")
-
-	// Start the service
-	err = exec.Command("systemctl", "start", "nodeisp").Run()
-	if err != nil {
-		log.Fatalf("Failed to start service: %s", err)
-	}
-
-	fmt.Println("Service started")
 }

@@ -58,6 +58,9 @@ validate_environment(){
 
   # Ensure the systemd directory exists
   [ -d "$NODE_ISP_SYSTEMD_DIR" ] || fatal "Systemd directory does not exist"
+
+  verify_downloader curl || verify_downloader wget || fatal 'Can not find curl or wget for downloading files'
+  validate_arch
 }
 
 validate_arch(){
@@ -162,22 +165,8 @@ print_success(){
 
 {
   validate_environment
-
-  validate_arch
-
-  # Verify downloader
-  verify_downloader curl || verify_downloader wget || fatal 'Can not find curl or wget for downloading files'
-
-  # Install Docker
   install_docker
-
-  # Download the binary
   download_binary
-
-  # Setup Systemd service
-  info "Setting up systemd service"
-
   create_systemd_service
-
   print_success
 }
