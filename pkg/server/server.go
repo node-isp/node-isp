@@ -33,7 +33,7 @@ import (
 )
 
 var bakedAppRepo = "ghcr.io/node-isp/node-isp"
-var bakedAppVersion = "v0.11.12"
+var bakedAppVersion = "v0.12.3"
 
 type Server struct {
 	Config *config.Config
