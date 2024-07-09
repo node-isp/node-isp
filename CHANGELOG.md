@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4](https://github.com/node-isp/node-isp/compare/v1.1.3...v1.1.4) (2024-07-09)
+
+
+### Bug Fixes
+
+* grr ([c1bbe9e](https://github.com/node-isp/node-isp/commit/c1bbe9e0392fe5d3281c94d4e8552ccfc6e876d2))
+* grr ([75a1f09](https://github.com/node-isp/node-isp/commit/75a1f090207aa3bfedc97cc00bca8025f6897827))
+
 ## [1.1.3](https://github.com/node-isp/node-isp/compare/v1.1.2...v1.1.3) (2024-07-09)
 
 
