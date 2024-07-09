@@ -1,5 +1,5 @@
 ARG from=debian:bookworm
-FROM ${from} as builder
+FROM ${from} as build
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -54,7 +54,7 @@ RUN make deb
 FROM ${from}
 ARG DEBIAN_FRONTEND=noninteractive
 
-COPY --from=builder /usr/local/src/repositories/*.deb /tmp/
+COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 
 #
 #  We need curl to get the signing key

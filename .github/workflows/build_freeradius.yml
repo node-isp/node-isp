@@ -49,7 +49,7 @@ jobs:
           images: ${{ env.REGISTRY_IMAGE }}
           flavor: |
             latest=auto
-            prefix=4.0,onlatest=true
+            prefix=4.0-,onlatest=true
 
       - name: Build and push
         id: build

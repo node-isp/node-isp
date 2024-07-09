@@ -21,7 +21,7 @@ builds:
       - -s -w -X github.com/node-isp/node-isp/pkg/version.Version={{.Version}} -X github.com/node-isp/node-isp/pkg/version.Commit={{.Commit}} -X github.com/node-isp/node-isp/pkg/version.BuildDate={{ .CommitDate }}
 
   - id: radius
-    main: cmd/radius
+    main: ./cmd/radius
     binary: radius
     env:
       - CGO_ENABLED=0
