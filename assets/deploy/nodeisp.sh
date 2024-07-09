@@ -105,6 +105,9 @@ download_binary () {
 
   # Install the binary
   install -m 755 /tmp/node-isp /usr/local/bin/node-isp
+
+  # Cleanup
+  rm /tmp/node-isp
 }
 
 create_systemd_service(){
@@ -157,6 +160,7 @@ print_success(){
   validate_environment
   install_docker
   download_binary
+  run_nodeisp_setup
   create_systemd_service
   print_success
 }
