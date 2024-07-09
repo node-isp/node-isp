@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/node-isp/node-isp/compare/v1.1.4...v1.1.5) (2024-07-09)
+
+
+### Bug Fixes
+
+* working image ([d7da247](https://github.com/node-isp/node-isp/commit/d7da24765f5f082c40909692d75bfeebdd132f30))
+
 ## [1.1.4](https://github.com/node-isp/node-isp/compare/v1.1.3...v1.1.4) (2024-07-09)
 
 
