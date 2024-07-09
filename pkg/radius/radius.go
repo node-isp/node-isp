@@ -20,7 +20,7 @@ import (
 	"github.com/node-isp/node-isp/pkg/service"
 )
 
-var freeradiusImage = "ghcr.io/node-isp/freeradius:4.0"
+var freeradiusImage = "ghcr.io/node-isp/freeradius:4.0-latest"
 
 type Radius struct {
 	client     *centrifuge.Client
