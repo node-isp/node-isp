@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.2](https://github.com/node-isp/node-isp/compare/v1.1.1...v1.1.2) (2024-07-09)
+
+
+### Bug Fixes
+
+* docker install command ([50b4047](https://github.com/node-isp/node-isp/commit/50b4047f5c8785aa49392bda668f10dfba11ba8d))
+* freeradius docker action ([9c0294b](https://github.com/node-isp/node-isp/commit/9c0294b093ec28e495d4c7162b4baaef9ba7653a))
+* install script ([c3f0a45](https://github.com/node-isp/node-isp/commit/c3f0a456e96ffb92c4d8725eb709f215be7c4662))
+
 ## [1.1.1](https://github.com/node-isp/node-isp/compare/v1.1.0...v1.1.1) (2024-07-09)
 
 
