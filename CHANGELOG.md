@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/node-isp/node-isp/compare/v1.0.7...v1.1.0) (2024-07-09)
+
+
+### Features
+
+* radius manager ([5dcfd81](https://github.com/node-isp/node-isp/commit/5dcfd81dd0cd03ef44071da57556ed74723dacee))
+
 ## [1.0.7](https://github.com/node-isp/node-isp/compare/v1.0.6...v1.0.7) (2024-06-26)
 
 
