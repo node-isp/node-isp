@@ -40,7 +40,7 @@ services:
       start_period: 10s
 
   licence:
-    image: ${LICENCE_IMAGE:-ghcr.io/node-isp/licence}:${LICENCE_VERSION:-v1.2.0}
+    image: ${LICENCE_IMAGE:-ghcr.io/node-isp/licence}:${NODEISP_TOOLS_VERSION:-v0.1.3}
     platform: linux/amd64
     container_name: nodeisp-licence
     restart: unless-stopped
@@ -58,7 +58,7 @@ services:
       - app_config:/etc/nodeisp/
 
   realtime:
-    image: ${REALTIME_IMAGE:-ghcr.io/node-isp/realtime}:${REALTIME_VERSION:-v1.2.0}
+    image: ${REALTIME_IMAGE:-ghcr.io/node-isp/realtime}:${NODEISP_TOOLS_VERSION:-v0.1.3}
     platform: linux/amd64
     container_name: nodeisp-realtime
     restart: unless-stopped
