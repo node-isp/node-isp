@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/node-isp/node-isp/compare/v0.0.3...v0.0.4) (2024-08-14)
+
+
+### Bug Fixes
+
+* build ([5a59dfb](https://github.com/node-isp/node-isp/commit/5a59dfbf0e323b80f4e3ce47ff2e2a3b3afc87b0))
+
 ## [0.0.3](https://github.com/node-isp/node-isp/compare/v0.0.2...v0.0.3) (2024-08-14)
 
 
