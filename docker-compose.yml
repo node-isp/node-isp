@@ -1,0 +1,151 @@
+name: node_isp
+
+services:
+  timescale:
+    image: timescale/timescaledb-ha:pg16
+    container_name: nodeisp-db
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      start_period: 1s
+      interval: 10s
+    volumes:
+      - postgres_data:/home/postgres/pgdata/data
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_DATABASE:-nodeisp}
+
+  redis:
+    image: redis:7
+    container_name: nodeisp-redis
+    restart: unless-stopped
+    healthcheck:
+      test: redis-cli --raw incr ping
+      start_period: 1s
+      interval: 10s
+    environment:
+      REDIS_PASSWORD:
+      REDIS_PORT: "6379"
+
+    volumes:
+      - redis_data:/data
+
+  pdf:
+    image: getlago/lago-gotenberg:7
+    container_name: nodeisp-pdf
+    restart: unless-stopped
+    healthcheck:
+      test: curl http://localhost:3000/health | grep "up" || exit 1
+      start_period: 10s
+
+  licence:
+    image: ${LICENCE_IMAGE:-ghcr.io/node-isp/licence}:${LICENCE_VERSION:-v1.2.0}
+    platform: linux/amd64
+    container_name: nodeisp-licence
+    restart: unless-stopped
+    environment:
+      NODEISP_LICENCE_ID: ${NODEISP_LICENCE_KEY_ID}
+      NODEISP_LICENCE_CODE: ${NODEISP_LICENCE_KEY_CODE}
+      NODEISP_LICENCE_FILE: /etc/nodeisp/nodeisp.lic
+      NODEISP_DATABASE_HOST: ${DB_HOST:-timescale}
+      NODEISP_DATABASE_USERNAME: ${DB_USERNAME:-postgres}
+      NODEISP_DATABASE_PASSWORD: ${DB_PASSWORD:-password}
+      NODEISP_DATABASE_NAME: ${DB_DATABASE:-nodeisp}
+    env_file:
+      - .env
+    volumes:
+      - app_config:/etc/nodeisp/
+
+  realtime:
+    image: ${REALTIME_IMAGE:-ghcr.io/node-isp/realtime}:${REALTIME_VERSION:-v1.2.0}
+    platform: linux/amd64
+    container_name: nodeisp-realtime
+    restart: unless-stopped
+    depends_on:
+      - timescale
+      - redis
+      - app
+    environment:
+      NODEISP_BACKEND_DOMAIN: ${NODEISP_DOMAIN}
+    env_file:
+      - .env
+    volumes:
+      - app_config:/etc/nodeisp/
+
+  migrate:
+    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.9}
+    platform: linux/amd64
+    container_name: nodeisp-migrate
+    entrypoint: /entrypoint-migrate.sh
+    depends_on:
+      timescale:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      pdf:
+        condition: service_healthy
+    environment:
+      APP_VERSION: ${APP_VERSION:-v0.12.9}
+      APP_URL: https://${NODEISP_DOMAIN}
+      SERVER_NAME: ${NODEISP_DOMAIN}
+      DB_CONNECTION: pgsql
+      DB_HOST: ${DB_HOST:-timescale}
+      DB_PORT: "5432"
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_DATABASE: ${DB_DATABASE:-nodeisp}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      REDIS_PORT: "6379"
+      REDIS_HOST: redis
+      CACHE_DRIVER: file
+      QUEUE_CONNECTION: redis
+      TELESCOPE_PATH: ${TELESCOPE_PATH:-admin/telescope}
+      HORIZON_PATH: ${HORIZON_PATH:-admin/horizon}
+      FILESYSTEM_DISK: local
+      FILAMENT_FILESYSTEM_DISK: local
+      SERVICES_GOTENBERG_URL: http://pdf:3000/
+      LOG_CHANNEL: stderr
+    env_file:
+      - .env
+    volumes:
+      - app_data:/app/storage/app/public
+      - app_data:/app/public/storage
+      - app_config:/etc/nodeisp/
+
+  app:
+    container_name: nodeisp-app
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    entrypoint: /entrypoint.sh
+    extends: { service: migrate }
+    ports: [ "80:80", "443:443", "443:443/udp" ]
+    healthcheck:
+      test: curl -f http://localhost:2019/metrics || exit 1
+      start_period: 1s
+      interval: 5s
+    restart: unless-stopped
+
+  worker:
+    container_name: nodeisp-worker
+    depends_on: { app: { condition: service_healthy } }
+    entrypoint: /entrypoint-worker.sh
+    extends: { service: migrate }
+    healthcheck:
+      test: php artisan horizon:status
+      start_period: 1s
+      interval: 5s
+    restart: unless-stopped
+
+  cron:
+    container_name: nodeisp-cron
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    entrypoint: /entrypoint-cron.sh
+    extends: { service: migrate }
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+
+volumes:
+  app_data:
+  app_config:
+  postgres_data:
+  redis_data:

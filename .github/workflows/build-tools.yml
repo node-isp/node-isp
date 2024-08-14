@@ -1,0 +1,52 @@
+name: Build NodeISP Tools
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  packages: write
+  actions: write
+
+concurrency:
+  group: nodeisp-tools-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Node ISP Tools
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: 'node-isp/node-isp-tools'
+          fetch-depth: 0
+
+      - name: Generate Token
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a
+        id: generate-token
+        with:
+          app_id: ${{ secrets.BOT_APP_ID }}
+          private_key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+          cache: true
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
