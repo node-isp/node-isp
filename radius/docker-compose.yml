@@ -1,0 +1,32 @@
+name: node_isp_radius
+
+services:
+  manager:
+    image: ${MANAGER_IMAGE:-ghcr.io/node-isp/radius}:${NODEISP_TOOLS_VERSION:-v0.1.4}
+    platform: linux/amd64
+    container_name: nodeisp-radius-manager
+    restart: unless-stopped
+    environment:
+      NODE_ISP_DOMAIN: ${NODEISP_DOMAIN}
+      NODE_ISP_RADIUS_TOKEN: ${NODEISP_RADIUS_TOKEN}
+      NODE_ISP_RADIUS_CACHE_DIR: /var/lib/nodeisp
+    env_file:
+      - .env
+    volumes:
+      - cache:/var/lib/nodeisp
+
+  freeradius:
+    image: ${FREERADIUS_IMAGE:-ghcr.io/node-isp/freeradius}:${FREERADIUS_VERSION:-4.0-v0.1.4}
+    platform: linux/amd64
+    container_name: nodeisp-freeradius
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      FREERADIUS_API_URL: http://manager:9999
+    ports:
+      - "1812-1813:1812-1813/tcp"
+      - "1812-1813:1812-1813/udp"
+
+volumes:
+  cache:
