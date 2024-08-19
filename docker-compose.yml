@@ -40,7 +40,7 @@ services:
       start_period: 10s
 
   licence:
-    image: ${LICENCE_IMAGE:-ghcr.io/node-isp/licence}:${NODEISP_TOOLS_VERSION:-v0.1.4}
+    image: ${LICENCE_IMAGE:-ghcr.io/node-isp/licence}:${NODEISP_TOOLS_VERSION:-v0.1.5}
     platform: linux/amd64
     container_name: nodeisp-licence
     restart: unless-stopped
@@ -58,7 +58,7 @@ services:
       - app_config:/etc/nodeisp/
 
   realtime:
-    image: ${REALTIME_IMAGE:-ghcr.io/node-isp/realtime}:${NODEISP_TOOLS_VERSION:-v0.1.4}
+    image: ${REALTIME_IMAGE:-ghcr.io/node-isp/realtime}:${NODEISP_TOOLS_VERSION:-v0.1.5}
     platform: linux/amd64
     container_name: nodeisp-realtime
     restart: unless-stopped
@@ -74,7 +74,7 @@ services:
       - app_config:/etc/nodeisp/
 
   migrate:
-    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.9}
+    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.11}
     platform: linux/amd64
     container_name: nodeisp-migrate
     entrypoint: /entrypoint-migrate.sh
@@ -86,7 +86,7 @@ services:
       pdf:
         condition: service_healthy
     environment:
-      APP_VERSION: ${APP_VERSION:-v0.12.9}
+      APP_VERSION: ${APP_VERSION:-v0.12.11}
       APP_URL: https://${NODEISP_DOMAIN}
       SERVER_NAME: ${NODEISP_DOMAIN}
       DB_CONNECTION: pgsql
@@ -111,6 +111,7 @@ services:
       - app_data:/app/storage/app/public
       - app_data:/app/public/storage
       - app_config:/etc/nodeisp/
+      - caddy_data:/data/caddy
 
   app:
     container_name: nodeisp-app
@@ -149,3 +150,4 @@ volumes:
   app_config:
   postgres_data:
   redis_data:
+  caddy_data:
