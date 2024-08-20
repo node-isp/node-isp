@@ -2,7 +2,7 @@ name: node_isp_radius
 
 services:
   manager:
-    image: ${MANAGER_IMAGE:-ghcr.io/node-isp/radius}:${NODEISP_TOOLS_VERSION:-v0.1.5}
+    image: ${MANAGER_IMAGE:-ghcr.io/node-isp/radius}:${NODEISP_TOOLS_VERSION:-v0.1.6}
     platform: linux/amd64
     container_name: nodeisp-radius-manager
     restart: unless-stopped
@@ -16,7 +16,7 @@ services:
       - cache:/var/lib/nodeisp
 
   freeradius:
-    image: ${FREERADIUS_IMAGE:-ghcr.io/node-isp/freeradius}:${FREERADIUS_VERSION:-4.0-v0.1.5}
+    image: ${FREERADIUS_IMAGE:-ghcr.io/node-isp/freeradius}:${FREERADIUS_VERSION:-4.0-v0.1.6}
     platform: linux/amd64
     container_name: nodeisp-freeradius
     restart: unless-stopped

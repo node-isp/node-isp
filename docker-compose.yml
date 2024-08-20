@@ -40,7 +40,7 @@ services:
       start_period: 10s
 
   licence:
-    image: ${LICENCE_IMAGE:-ghcr.io/node-isp/licence}:${NODEISP_TOOLS_VERSION:-v0.1.5}
+    image: ${LICENCE_IMAGE:-ghcr.io/node-isp/licence}:${NODEISP_TOOLS_VERSION:-v0.1.6}
     platform: linux/amd64
     container_name: nodeisp-licence
     restart: unless-stopped
@@ -58,7 +58,7 @@ services:
       - app_config:/etc/nodeisp/
 
   realtime:
-    image: ${REALTIME_IMAGE:-ghcr.io/node-isp/realtime}:${NODEISP_TOOLS_VERSION:-v0.1.5}
+    image: ${REALTIME_IMAGE:-ghcr.io/node-isp/realtime}:${NODEISP_TOOLS_VERSION:-v0.1.6}
     platform: linux/amd64
     container_name: nodeisp-realtime
     restart: unless-stopped
@@ -74,7 +74,7 @@ services:
       - app_config:/etc/nodeisp/
 
   migrate:
-    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.13}
+    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.17}
     platform: linux/amd64
     container_name: nodeisp-migrate
     entrypoint: /entrypoint-migrate.sh
@@ -86,7 +86,7 @@ services:
       pdf:
         condition: service_healthy
     environment:
-      APP_VERSION: ${APP_VERSION:-v0.12.13}
+      APP_VERSION: ${APP_VERSION:-v0.12.17}
       APP_URL: https://${NODEISP_DOMAIN}
       SERVER_NAME: ${NODEISP_DOMAIN}
       DB_CONNECTION: pgsql
@@ -144,6 +144,13 @@ services:
     healthcheck:
       disable: true
     restart: unless-stopped
+
+  tools:
+    container_name: nodeisp-tools
+    extends: { service: migrate }
+    entrypoint: php artisan
+    profiles:
+      - tools
 
 volumes:
   app_data:
