@@ -74,7 +74,7 @@ services:
       - app_config:/etc/nodeisp/
 
   migrate:
-    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.17}
+    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.18}
     platform: linux/amd64
     container_name: nodeisp-migrate
     entrypoint: /entrypoint-migrate.sh
@@ -108,8 +108,7 @@ services:
     env_file:
       - .env
     volumes:
-      - app_data:/app/storage/app/public
-      - app_data:/app/public/storage
+      - app_data:/app/storage/app
       - app_config:/etc/nodeisp/
       - caddy_data:/data/caddy
 
