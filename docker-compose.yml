@@ -74,7 +74,7 @@ services:
       - app_config:/etc/nodeisp/
 
   migrate:
-    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.23}
+    image: ${APP_IMAGE:-ghcr.io/node-isp/node-isp}:${APP_VERSION:-v0.12.26}
     platform: linux/amd64
     container_name: nodeisp-migrate
     entrypoint: /entrypoint-migrate.sh
@@ -86,7 +86,7 @@ services:
       pdf:
         condition: service_healthy
     environment:
-      APP_VERSION: ${APP_VERSION:-v0.12.23}
+      APP_VERSION: ${APP_VERSION:-v0.12.26}
       APP_URL: https://${NODEISP_DOMAIN}
       SERVER_NAME: ${NODEISP_DOMAIN}
       DB_CONNECTION: pgsql
@@ -120,6 +120,17 @@ services:
     ports: [ "80:80", "443:443", "443:443/udp" ]
     healthcheck:
       test: curl -f http://localhost:2019/metrics || exit 1
+      start_period: 1s
+      interval: 5s
+    restart: unless-stopped
+
+  reverb:
+    container_name: nodeisp-reverb
+    depends_on: { app: { condition: service_healthy } }
+    entrypoint: /entrypoint-reverb.sh
+    extends: { service: migrate }
+    healthcheck:
+      test: curl -f http://localhost:8082/ || exit 1
       start_period: 1s
       interval: 5s
     restart: unless-stopped
